@@ -1,0 +1,4 @@
+{
+  "target": "http://ada9a91f3472a4ff687c3e8220a83220-77819570212423a3.elb.us-east-2.amazonaws.com",
+  "locusts": ["Web"]
+}

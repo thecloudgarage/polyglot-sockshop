@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  master:
+    image: locustio/locust
+    ports:
+     - "8089:8089"
+    volumes:
+      - ./scripts:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --master -H http://3.22.204.61:8089 --web-host=0.0.0.0 
+  
+  worker:
+    image: locustio/locust
+    volumes:
+      - ./scripts:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --worker --master-host master 
