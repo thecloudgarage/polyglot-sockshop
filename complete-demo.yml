@@ -1,3 +1,17 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: carts-db
+  namespace: sock-shop
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "standard"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -9,7 +23,7 @@ spec:
   selector:
     matchLabels:
       name: carts-db
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
@@ -28,22 +42,22 @@ spec:
       containers:
       - name: carts-db
         image: mongo
+        command:
+        - "mongod"
+        - "--bind_ip"
+        - "0.0.0.0"
         ports:
         - name: mongo
           containerPort: 27017
-        securityContext:
-          capabilities:
-            drop:
-              - all
-            add:
-              - CHOWN
-              - SETGID
-              - SETUID
-          readOnlyRootFilesystem: true
         volumeMounts:
+        - name: mongo-persistent-storage
+          mountPath: /data/db
         - mountPath: /tmp
           name: tmp-volume
       volumes:
+        - name: mongo-persistent-storage
+          persistentVolumeClaim:
+            claimName: carts-db
         - name: tmp-volume
           emptyDir:
             medium: Memory
@@ -132,6 +146,20 @@ spec:
   selector:
     name: carts
 ---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: catalogue-db
+  namespace: sock-shop
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "standard"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -143,7 +171,7 @@ spec:
   selector:
     matchLabels:
       name: catalogue-db
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
@@ -162,6 +190,8 @@ spec:
       containers:
       - name: catalogue-db
         image: weaveworksdemos/catalogue-db:0.3.0
+        args:
+          - "--ignore-db-dir=lost+found"
         env:
           - name: MYSQL_ROOT_PASSWORD
             value: fake_password
@@ -170,8 +200,13 @@ spec:
         ports:
         - name: mysql
           containerPort: 3306
-      nodeSelector:
-        beta.kubernetes.io/os: linux
+        volumeMounts:
+        - mountPath: "/var/lib/mysql"
+          name: mysql-storage
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: catalogue-db
 ---
 apiVersion: v1
 kind: Service
@@ -279,6 +314,9 @@ spec:
             memory: 100Mi
         ports:
         - containerPort: 8079
+        env:
+        - name: SESSION_REDIS
+          value: "true"
         securityContext:
           runAsNonRoot: true
           runAsUser: 10001
@@ -306,6 +344,20 @@ spec:
   selector:
     name: front-end
 ---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: orders-db
+  namespace: sock-shop
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "standard"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -317,7 +369,7 @@ spec:
   selector:
     matchLabels:
       name: orders-db
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
@@ -336,22 +388,22 @@ spec:
       containers:
       - name: orders-db
         image: mongo
+        command:
+        - "mongod"
+        - "--bind_ip"
+        - "0.0.0.0"
         ports:
         - name: mongo
           containerPort: 27017
-        securityContext:
-          capabilities:
-            drop:
-              - all
-            add:
-              - CHOWN
-              - SETGID
-              - SETUID
-          readOnlyRootFilesystem: true
         volumeMounts:
+        - name: mongo-persistent-storage
+          mountPath: /data/db
         - mountPath: /tmp
           name: tmp-volume
       volumes:
+        - name: mongo-persistent-storage
+          persistentVolumeClaim:
+            claimName: orders-db
         - name: tmp-volume
           emptyDir:
             medium: Memory
@@ -547,6 +599,20 @@ spec:
   selector:
     name: queue-master
 ---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: rabbitmq
+  namespace: sock-shop
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "standard"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -558,7 +624,7 @@ spec:
   selector:
     matchLabels:
       name: rabbitmq
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
@@ -579,16 +645,13 @@ spec:
         image: rabbitmq:3.6.8
         ports:
         - containerPort: 5672
-        securityContext:
-          capabilities:
-            drop:
-              - all
-            add:
-              - CHOWN
-              - SETGID
-              - SETUID
-              - DAC_OVERRIDE
-          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: rabbitmq-data
+          mountPath: /var/lib/rabbitmq
+      volumes:
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: rabbitmq
 ---
 apiVersion: v1
 kind: Service
@@ -674,6 +737,20 @@ spec:
   selector:
     name: shipping
 ---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: user-db
+  namespace: sock-shop
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "standard"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -685,7 +762,7 @@ spec:
   selector:
     matchLabels:
       name: user-db
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:
@@ -704,22 +781,22 @@ spec:
       containers:
       - name: user-db
         image: weaveworksdemos/user-db:0.4.0
+        command:
+        - "mongod"
+        - "--bind_ip"
+        - "0.0.0.0"
         ports:
         - name: mongo
           containerPort: 27017
-        securityContext:
-          capabilities:
-            drop:
-              - all
-            add:
-              - CHOWN
-              - SETGID
-              - SETUID
-          readOnlyRootFilesystem: true
         volumeMounts:
+        - name: mongo-persistent-storage
+          mountPath: /data
         - mountPath: /tmp
           name: tmp-volume
       volumes:
+        - name: mongo-persistent-storage
+          persistentVolumeClaim:
+            claimName: user-db
         - name: tmp-volume
           emptyDir:
             medium: Memory
