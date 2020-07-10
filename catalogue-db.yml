@@ -120,8 +120,6 @@ spec:
             value: fake_password
           - name: MYSQL_DATABASE
             value: socksdb
-          - name: MYSQL_ALLOW_EMPTY_PASSWORD
-            value: "1"
         ports:
         - name: mysql
           containerPort: 3306
@@ -135,16 +133,10 @@ spec:
           requests:
             cpu: 500m
             memory: 1Gi
-        livenessProbe:
-          exec:
-            command: ["mysqladmin", "ping"]
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
         readinessProbe:
           exec:
             # Check we can execute queries over TCP (skip-networking is off).
-            command: ['bash', 'c', 'mysql -h 127.0.0.1 -u root@localhost -p fake_password -e SELECT 1']
+            command: ['bash', 'c', 'mysql -h 127.0.0.1 -u root -p fake_password -e SELECT 1']
           initialDelaySeconds: 5
           periodSeconds: 2
           timeoutSeconds: 1
@@ -177,10 +169,10 @@ spec:
           # Check if we need to complete a clone by starting replication.
           if [[ -f change_master_to.sql.in ]]; then
             echo "Waiting for mysqld to be ready (accepting connections)"
-            until mysql -h 127.0.0.1 -u root@localhost -p fake_password -e "SELECT 1"; do sleep 1; done
+            until mysql -h 127.0.0.1 -u root -p fake_password -e "SELECT 1"; do sleep 1; done
 
             echo "Initializing replication from clone position"
-            mysql -h 127.0.0.1 -u root@localhost -p fake_password \
+            mysql -h 127.0.0.1 -u root -p fake_password \
                   -e "$(<change_master_to.sql.in), \
                           MASTER_HOST='mysql-0.catalogue-db-master', \
                           MASTER_USER='root', \
