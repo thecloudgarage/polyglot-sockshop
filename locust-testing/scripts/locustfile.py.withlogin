@@ -15,6 +15,7 @@ class WebTasks(TaskSet):
         item_id = category_item["id"]
 
         self.client.get("/")
+        self.client.get("/login", headers={"Authorization":"Basic %s" % base64string})
         self.client.get("/category.html")
         self.client.get("/detail.html?id={}".format(item_id))
         self.client.get("/basket.html")
