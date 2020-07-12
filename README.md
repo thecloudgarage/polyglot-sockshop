@@ -4,3 +4,4 @@ polyglot-sockshop
 * kubectl cp user-db-init/configdb user-db-6df78d4cb9-42kbf:/data -n sock-shop
 * kubectl cp user-db-init/db user-db-6df78d4cb9-42kbf:/data -n sock-shop
 * kubectl cp user-db-init/db-users user-db-6df78d4cb9-42kbf:/data -n sock-shop
+* Stateful deployment of Catalogue-db inspired by https://kubernetes.io/docs/tasks/run-application/run-replicated-stateful-application/
