@@ -159,7 +159,7 @@ spec:
   selector:
     matchLabels:
       name: carts
-  replicas: 6
+  replicas: 1
   template:
     metadata:
       labels:
@@ -305,7 +305,7 @@ spec:
   selector:
     matchLabels:
       name: catalogue
-  replicas: 6
+  replicas: 1
   template:
     metadata:
       labels:
@@ -360,7 +360,7 @@ spec:
   selector:
     matchLabels:
       name: front-end
-  replicas: 6
+  replicas: 1
   template:
     metadata:
       labels:
@@ -505,7 +505,7 @@ spec:
   selector:
     matchLabels:
       name: orders
-  replicas: 6
+  replicas: 1
   template:
     metadata:
       labels:
@@ -574,7 +574,7 @@ spec:
   selector:
     matchLabels:
       name: payment
-  replicas: 6
+  replicas: 1
   template:
     metadata:
       labels:
@@ -631,7 +631,7 @@ spec:
   selector:
     matchLabels:
       name: queue-master
-  replicas: 6
+  replicas: 1
   template:
     metadata:
       labels:
@@ -750,7 +750,7 @@ spec:
   selector:
     matchLabels:
       name: shipping
-  replicas: 6
+  replicas: 1
   template:
     metadata:
       labels:
@@ -898,7 +898,7 @@ spec:
   selector:
     matchLabels:
       name: user
-  replicas: 6
+  replicas: 1
   template:
     metadata:
       labels:
