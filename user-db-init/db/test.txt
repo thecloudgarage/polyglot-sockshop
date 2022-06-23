@@ -1,0 +1,1 @@
+To ensure that db directory is copied, else github will not hold an empty directory
