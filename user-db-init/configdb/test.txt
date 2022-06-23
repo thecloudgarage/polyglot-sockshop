@@ -1,0 +1,1 @@
+To ensure that configdb directory is copied, else github will not hold an empty directory
